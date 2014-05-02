@@ -78,8 +78,15 @@
    "
   ([client exception] (report client exception {}))
   ([client exception extra]
-   (let [detail (format-extra-detail extra)]
-     (.report client detail (stringify-keys (dissoc extra
+   (if (or (:environment extra)
+           (:location extra)
+           (:url extra))
+     (let [detail (format-extra-detail extra)]
+       (.report client detail (stringify-keys (dissoc extra
+                                                      :environment
+                                                      :location
+                                                      :url))))
+     (.report client (stringify-keys (dissoc extra
                                                     :environment
                                                     :location
                                                     :url))))))
