@@ -1,5 +1,6 @@
 (ns yeller-clojure-client
-  (:require [clojure.walk :refer [stringify-keys]]))
+  (:require [clojure.walk :refer [stringify-keys]])
+  (:import (com.yellerapp.client YellerHTTPClient YellerClient YellerExtraDetail)))
 
 (defn ^YellerClient client
   "creates a new client from a map of configuration settings Required settings:
@@ -10,7 +11,8 @@
   "
   [options]
   (assert (string? (:token options)) "Yeller client must be passed your api key as a string under :token")
-  (let [client (YellerClient. (:token options))]
+  (let [client (YellerHTTPClient. (:token options))]
+    client
     )
   )
 
