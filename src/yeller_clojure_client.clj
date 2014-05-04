@@ -86,10 +86,7 @@
        (.report client
                 exception
                 detail
-                (stringify-keys (dissoc extra
-                                        :environment
-                                        :location
-                                        :url))))
+                (stringify-keys (:custom-data extra {}))))
      (.report client
               exception
               (stringify-keys (dissoc extra
