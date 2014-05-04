@@ -3,7 +3,8 @@
   (:import (com.yellerapp.client
              YellerHTTPClient
              YellerClient
-             YellerExtraDetail)))
+             YellerExtraDetail
+             YellerErrorHandler)))
 
 (defn default-io-error-handler [backend error]
   (.println *err* (str "Yeller: an io error ocurred whilst talking to yeller: " error)))
@@ -38,10 +39,10 @@
         client
         (reify
           YellerErrorHandler
-          (reportAuthError [backend e]
+          (reportAuthError [this backend e]
             ((:auth-error-handler options default-auth-error-handler)
                backend e))
-          (reportIOError [backend e]
+          (reportIOError [this backend e]
             ((:auth-io-handler options default-auth-error-handler)
                backend e)))))
     client))
@@ -82,11 +83,16 @@
            (:location extra)
            (:url extra))
      (let [detail (format-extra-detail extra)]
-       (.report client detail (stringify-keys (dissoc extra
-                                                      :environment
-                                                      :location
-                                                      :url))))
-     (.report client (stringify-keys (dissoc extra
-                                                    :environment
-                                                    :location
-                                                    :url))))))
+       (.report client
+                exception
+                detail
+                (stringify-keys (dissoc extra
+                                        :environment
+                                        :location
+                                        :url))))
+     (.report client
+              exception
+              (stringify-keys (dissoc extra
+                                      :environment
+                                      :location
+                                      :url))))))
