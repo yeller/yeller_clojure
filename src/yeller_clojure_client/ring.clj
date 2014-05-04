@@ -3,7 +3,7 @@
             [ring.util.request :as req]))
 
 (defn format-extra [options request]
-  {:url (req/url request)
+  {:url (req/request-url request)
    :custom-data
    {:params (merge (:query-params request) (:form-params request))
     :session (:session request)
