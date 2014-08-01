@@ -8,7 +8,7 @@
    {:params (merge (:query-params request) (:form-params request))
     :session (:session request)
     :context (:yeller/context request)}
-   :environment (:environment options "development")})
+   :environment (:environment options "production")})
 
 (defn wrap-ring
   [handler options]
@@ -17,7 +17,7 @@
    Required:
    {:token \"your api token here\"}
    Optional:
-   {:environment \"development\"} ; the name of the environment this ring app is running in
+   {:environment \"production\"} ; the name of the environment this ring app is running in
 
    if you attach a :yeller/context key in your request map (that contains a
    further map) in your ring request, then this middleware will send that off to
