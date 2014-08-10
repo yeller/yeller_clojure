@@ -43,7 +43,7 @@
             ((:auth-error-handler options default-auth-error-handler)
                backend e))
           (reportIOError [this backend e]
-            ((:auth-io-handler options default-auth-error-handler)
+            ((:auth-io-handler options default-io-error-handler)
                backend e)))))
     client))
 
