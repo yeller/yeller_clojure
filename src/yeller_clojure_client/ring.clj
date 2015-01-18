@@ -17,13 +17,8 @@
     :http-request (request-info request)}
    :environment (:environment options "production")})
 
-(defn make-client [options-or-client]
-  (if (map? options-or-client)
-    (yeller/client options)
-    options-or-client))
-
 (defn wrap-ring
-  [handler options-or-client]
+  [handler options]
   "wraps a ring handler in middleware that sends exceptions to yeller.
    takes a map of options.
    Required:
@@ -40,7 +35,7 @@
    On the other hand, it should probably sit outside of any middleware you have
    that does e.g. authentication, so it can track errors that happen in that
    middleware"
-  (let [client (make-client options-or-client)]
+  (let [client (yeller/client options)]
     (fn [request]
       (try
         (handler request)
