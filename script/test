@@ -1,0 +1,4 @@
+#!/bin/bash
+
+grench eval "(require '[yeller-clojure-client :reload true])"
+grench eval "(require '[yeller-clojure-client.ring :reload true])"
