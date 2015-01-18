@@ -43,4 +43,5 @@
           (yeller/report
             client
             t
-            (format-extra options request)))))))
+            (format-extra options request))
+          (throw t))))))
