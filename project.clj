@@ -1,4 +1,4 @@
-(defproject yeller-clojure-client "0.2.0"
+(defproject yeller-clojure-client "0.3.0"
   :description "Clojure client for yellerapp.com"
   :url "https://github.com/tcrayford/yeller_clojure"
   :license {:name "Eclipse Public License"
