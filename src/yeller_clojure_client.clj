@@ -12,6 +12,37 @@
 (defn default-auth-error-handler [backend error]
   (.println *err* (str "Yeller: an authentication error ocurred whilst talking to yeller: " error)))
 
+(defn set-error-handlers! [client options]
+  (if (or (:io-error-handler options)
+          (:auth-error-handler options))
+    (.setErrorHandler
+      client
+      (reify
+        YellerErrorHandler
+        (reportAuthError [this backend e]
+          ((:auth-error-handler options default-auth-error-handler)
+             backend e))
+        (reportIOError [this backend e]
+          ((:auth-io-handler options default-io-error-handler)
+             backend e))))))
+
+(defn- ^"[Ljava.lang.String;" make-endpoint-array
+  "turns a seq of endpoints into
+  an array of endpoints"
+  [endpoints]
+  (let [a (make-array String (count endpoints))]
+    (loop  [i 0]
+      (if (<= (count endpoints) i)
+        a
+        (do
+          (aset a i (nth endpoints i))
+          (recur (inc i)))))))
+
+(defn set-urls! [client options]
+  (when-let [endpoints (:endpoints options)]
+    (assert (every? string? endpoints) (str "was given endpoints that weren't strings under :endpoints, got: " (pr-str endpoints)))
+    (.setUrls client (make-endpoint-array (:endpoints options)))))
+
 (defn ^YellerClient client
   "creates a new client from a map of configuration settings Required settings:
   {:token \"YOUR API KEY HERE\"}
@@ -31,20 +62,10 @@
   ocurred.
   "
   [options]
-  (assert (string? (:token options)) "Yeller client must be passed your api key as a string under :token")
+  (assert (string? (:token options)) (str "Yeller client must be passed your api key as a string under :token, but got " (pr-str (:token options)) " from (:token options)"))
   (let [client (YellerHTTPClient. (:token options))]
-    (if (or (:io-error-handler options)
-            (:auth-error-handler options))
-      (.setErrorHandler
-        client
-        (reify
-          YellerErrorHandler
-          (reportAuthError [this backend e]
-            ((:auth-error-handler options default-auth-error-handler)
-               backend e))
-          (reportIOError [this backend e]
-            ((:auth-io-handler options default-io-error-handler)
-               backend e)))))
+    (set-error-handlers! client options)
+    (set-urls! client options)
     client))
 
 (defn ^YellerExtraDetail add-url [^YellerExtraDetail detail extra]
