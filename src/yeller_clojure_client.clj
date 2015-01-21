@@ -95,6 +95,11 @@
     (add-environment extra)
     (add-location extra)))
 
+(defn add-ex-data [exception current-custom-data]
+  (if-let [data (ex-data exception)]
+    (merge {:ex-data data} current-custom-data)
+    current-custom-data))
+
 (defn report
   "reports an exception to yeller's servers.
    Optionally takes a map of extra detail. Currently supported extra detail:
@@ -113,10 +118,9 @@
        (.report client
                 exception
                 detail
-                (stringify-keys (:custom-data extra {}))))
+                (stringify-keys (add-ex-data exception (:custom-data extra {})))))
      (.report client
               exception
-              (stringify-keys (dissoc extra
-                                      :environment
-                                      :location
-                                      :url))))))
+              (stringify-keys (add-ex-data
+                                exception
+                                (:custom-data extra {})))))))
