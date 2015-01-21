@@ -43,6 +43,11 @@
     (assert (every? string? endpoints) (str "was given endpoints that weren't strings under :endpoints, got: " (pr-str endpoints)))
     (.setUrls client (make-endpoint-array (:endpoints options)))))
 
+(defn set-debug! [^YellerHTTPClient client options]
+  (if (:debug options)
+    (.enableDebug client))
+  client)
+
 (defn ^YellerClient client
   "creates a new client from a map of configuration settings Required settings:
   {:token \"YOUR API KEY HERE\"}
@@ -66,6 +71,7 @@
   (let [client (YellerHTTPClient. (:token options))]
     (set-error-handlers! client options)
     (set-urls! client options)
+    (set-debug! client options)
     client))
 
 (defn ^YellerExtraDetail add-url [^YellerExtraDetail detail extra]
