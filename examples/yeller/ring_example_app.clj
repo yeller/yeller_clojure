@@ -10,5 +10,6 @@
       (session/wrap-session
         (yeller/wrap-ring
           (fn [& args] (assert false "error"))
-          {:token "YOUR API KEY GOES HERE"})))
+          {:token "YOUR API TOKEN HERE"
+           :application-packages ["yeller.ring_example_app"]})))
     {:port 4001}))
