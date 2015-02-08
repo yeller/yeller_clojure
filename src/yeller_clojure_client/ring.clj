@@ -25,6 +25,7 @@
    {:token \"your api token here\"}
    Optional:
    {:environment \"production\"} ; the name of the environment this ring app is running in
+   {:application-packages [\"com.yourapp\"]} : the root package name of your application. Used to mark stacktrace frames as in-app or not (if their package starts with the root, then they'll be marked as in-app)
 
    if you attach a :yeller/context key in your request map (that contains a
    further map) in your ring request, then this middleware will send that off to
