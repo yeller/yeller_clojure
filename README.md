@@ -6,10 +6,10 @@ A Clojure library for sending exceptions to yellerapp.com
 
 ## Basic Usage
 
-Make a client with `yeller-clojure-client/client`:
+Make a client with `yeller.clojure.client/client`:
 
 ```clojure
-(require '[yeller-clojure-client :as yeller])
+(require '[yeller.clojure.client :as yeller])
 
 (def client (yeller/client {:token "YOUR API TOKEN HERE"}))
 ```
@@ -31,8 +31,8 @@ If you're building a ring app, likely this is how your app should interface
 with yeller:
 
 ```clojure
-(yeller-clojure-client.ring/wrap-ring my-handler {:token "YOUR TOKEN HERE"
-                                                  :environment "production"})
+(yeller.clojure.ring/wrap-ring my-handler {:token "YOUR TOKEN HERE"
+                                           :environment "production"})
 ```
 
 ## Uncaught Exception Handler
