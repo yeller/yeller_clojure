@@ -1,4 +1,4 @@
-(ns yeller-clojure-client
+(ns yeller.clojure.client
   (:require [clojure.walk :refer [stringify-keys]]
             [clojure.edn :as edn]
             [clojure.java.io :as io])

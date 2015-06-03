@@ -1,5 +1,5 @@
-(ns yeller-clojure-client.ring
-  (:require [yeller-clojure-client :as yeller]
+(ns yeller.clojure.ring
+  (:require [yeller.clojure.client :as yeller]
             [ring.util.request :as req]
             [clojure.string :as s]))
 
