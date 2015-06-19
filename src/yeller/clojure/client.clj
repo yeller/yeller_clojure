@@ -91,24 +91,26 @@
     (.setApplicationPackages client (make-app-package-array (default-application-packages)))))
 
 (defn ^YellerClient client
-  "creates a new client from a map of configuration settings Required settings:
+  "Creates a new client from a map of configuration settings. Required settings:
   {:token \"YOUR API KEY HERE\"}
 
   other settings:
-  :application-packages [\"myapp\"] (optional)
-  A seq of strings of package names. Used to mark stacktrace frames as coming from the application or not. Defaults to a name read from the application's project.clj
-  :auth-error-handler (fn [backend error] (println \"Yeller: an authentication error occurred whilst talking to yeller:\" backend error))
-  a function for reporting authentication errors when communicating with
-  yeller's servers. You might want this to print out to a log file (by default
-  it prints to stderr). Takes a String for the hostname of the api server it
-  was talking to during the error, and a Throwable for whatever exception
-  ocurred.
-  :io-error-handler (fn [backend error] (println \"Yeller: an io error occurred whilst talking to yeller:\" backend error))
-  a function for reporting io errors when communicating with
-  yeller's servers. You might want this to print out to a log file (by default
-  it prints to stderr). Takes a String for the hostname of the api server it
-  was talking to during the error, and a Throwable for whatever exception
-  ocurred."
+  * :environment \"production\" The environment the application is deployed into.
+  * :application-packages [\"myapp\"] (optional)
+    A seq of strings of package names. Used to mark stacktrace frames as coming from the application or not.
+    Defaults to a name read from the application's project.clj
+  * :auth-error-handler (fn [backend error] (println \"Yeller: an authentication error occurred whilst talking to yeller:\" backend error))
+    A function for reporting authentication errors when communicating with
+    yeller's servers. You might want this to print out to a log file (by default
+    it prints to stderr). Takes a String for the hostname of the api server it
+    was talking to during the error, and a Throwable for whatever exception
+    ocurred.
+  * :io-error-handler (fn [backend error] (println \"Yeller: an io error occurred whilst talking to yeller:\" backend error))
+    A function for reporting io errors when communicating with
+    yeller's servers. You might want this to print out to a log file (by default
+    it prints to stderr). Takes a String for the hostname of the api server it
+    was talking to during the error, and a Throwable for whatever exception
+    ocurred."
   [options]
   (assert (string? (:token options)) (str "Yeller client must be passed your api key as a string under :token, but got " (pr-str (:token options)) " from (:token options)"))
   (assert (and (sequential? (:application-packages options []))
