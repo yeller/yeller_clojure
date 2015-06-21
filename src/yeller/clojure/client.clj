@@ -8,6 +8,8 @@
              YellerExtraDetail
              YellerErrorHandler)))
 
+(def version "yeller-clojure-client: 1.2.0")
+
 (defn default-io-error-handler [backend error]
   (.println *err* (str "Yeller: an io error ocurred whilst talking to yeller: " error)))
 
@@ -137,11 +139,17 @@
     (.withLocation detail (:location extra))
     detail))
 
+(defn ^YellerExtraDetail add-client-version [^YellerExtraDetail detail extra]
+  (if (string? (:client-version extra))
+    (.withClientVersion detail (:client-version extra))
+    (.withClientVersion detail default-client-version)))
+
 (defn ^YellerExtraDetail format-extra-detail [extra]
   (-> (YellerExtraDetail.)
     (add-url extra)
     (add-environment extra)
-    (add-location extra)))
+    (add-location extra)
+    (add-client-version extra)))
 
 (defn add-ex-data [exception current-custom-data]
   (if-let [data (ex-data exception)]
