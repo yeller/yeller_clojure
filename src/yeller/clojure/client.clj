@@ -1,34 +1,42 @@
 (ns yeller.clojure.client
   (:require [clojure.walk :refer [stringify-keys]]
             [clojure.edn :as edn]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            wall.hack)
   (:import (com.yellerapp.client
              YellerHTTPClient
              YellerClient
              YellerExtraDetail
-             YellerErrorHandler)))
+             YellerErrorHandler)
+           (com.fasterxml.jackson.databind
+             JsonSerializer
+             ObjectMapper
+             module.SimpleModule)
+           (com.fasterxml.jackson.core Version)))
 
 (def client-version "yeller-clojure-client: 1.2.1")
 
 (defn default-io-error-handler [backend error]
-  (.println *err* (str "Yeller: an io error ocurred whilst talking to yeller: " error)))
+  (.println *err* (str "Yeller: an io error ocurred whilst talking to yeller: "))
+  (.printStackTrace error *err*))
 
 (defn default-auth-error-handler [backend error]
-  (.println *err* (str "Yeller: an authentication error ocurred whilst talking to yeller: " error)))
+  (.println *err* (str "Yeller: an authentication error ocurred whilst talking to yeller: " error))
+  (.printStackTrace error *err*))
 
 (defn set-error-handlers! [client options]
-  (if (or (:io-error-handler options)
-          (:auth-error-handler options))
-    (.setErrorHandler
-      client
-      (reify
-        YellerErrorHandler
-        (reportAuthError [this backend e]
-          ((:auth-error-handler options default-auth-error-handler)
-             backend e))
-        (reportIOError [this backend e]
-          ((:auth-io-handler options default-io-error-handler)
-             backend e))))))
+  (if (or (:auth-error-handler options)
+          (:io-error-handler options))
+    (let [auth (:auth-error-handler options default-auth-error-handler)
+          io (:io-error-handler options default-io-error-handler)]
+      (.setErrorHandler
+        client
+        (reify
+          YellerErrorHandler
+          (reportAuthError [this backend e]
+            (auth backend e))
+          (reportIOError [this backend e]
+            (io backend e)))))))
 
 (defn- ^"[Ljava.lang.String;" make-endpoint-array
   "turns a seq of endpoints into
@@ -92,6 +100,31 @@
     (.setApplicationPackages client (make-app-package-array (:application-packages options)))
     (.setApplicationPackages client (make-app-package-array (default-application-packages)))))
 
+(def named-serializer
+  (proxy [JsonSerializer] []
+    (serialize [named generator provider]
+      (if (namespace named)
+        (.writeString generator (str (namespace named) "/" (name named)))
+        (.writeString generator (name named))))))
+
+(def var-serializer
+  (proxy [JsonSerializer] []
+    (serialize [v generator provider]
+      (if-let [n (:ns (meta v))]
+        (.writeString generator (str n "/" (:name (meta v))))
+        (.writeString generator (:name (meta v)))))))
+
+(defn ^ObjectMapper object-mapper
+  "a Jackson ObjectMapper that serializes symbols, keywords and vars 'correctly'"
+  []
+  (let [mapper (ObjectMapper.)
+        module (SimpleModule.)]
+   (.addSerializer module clojure.lang.Keyword named-serializer)
+   (.addSerializer module clojure.lang.Var var-serializer)
+   (.addSerializer module clojure.lang.Symbol named-serializer)
+   (.registerModule mapper module)
+    mapper))
+
 (defn ^YellerClient client
   "Creates a new client from a map of configuration settings. Required settings:
   {:token \"YOUR API KEY HERE\"}
@@ -118,6 +151,7 @@
   (assert (and (sequential? (:application-packages options []))
             (every? string? (:application-packages options []))) (str "Yeller :application-packages must be a sequential collection of strings."))
   (let [client (YellerHTTPClient. (:token options))]
+    (.withObjectMapper client (object-mapper))
     (set-error-handlers! client options)
     (set-urls! client options)
     (set-debug! client options)
