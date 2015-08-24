@@ -14,7 +14,7 @@
            (com.fasterxml.jackson.core Version JsonGenerator)
            (java.io PrintWriter)))
 
-(def client-version "yeller-clojure-client: 1.3.2")
+(def client-version "yeller-clojure-client: 1.3.3")
 
 (defn default-io-error-handler [backend ^Throwable error]
   (.println ^PrintWriter *err* (str "Yeller: an io error ocurred whilst talking to yeller: "))
