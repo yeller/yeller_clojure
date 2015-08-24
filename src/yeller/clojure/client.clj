@@ -11,19 +11,22 @@
              JsonSerializer
              ObjectMapper
              module.SimpleModule)
-           (com.fasterxml.jackson.core Version)))
+           (com.fasterxml.jackson.core Version JsonGenerator)
+           (java.io PrintWriter)))
 
 (def client-version "yeller-clojure-client: 1.3.2")
 
-(defn default-io-error-handler [backend error]
-  (.println *err* (str "Yeller: an io error ocurred whilst talking to yeller: "))
-  (.printStackTrace error *err*))
+(defn default-io-error-handler [backend ^Throwable error]
+  (.println ^PrintWriter *err* (str "Yeller: an io error ocurred whilst talking to yeller: "))
+  (if error
+    (.printStackTrace error ^PrintWriter *err*)))
 
-(defn default-auth-error-handler [backend error]
-  (.println *err* (str "Yeller: an authentication error ocurred whilst talking to yeller: " error))
-  (.printStackTrace error *err*))
+(defn default-auth-error-handler [backend ^Throwable error]
+  (.println ^PrintWriter *err* (str "Yeller: an authentication error ocurred whilst talking to yeller: " error))
+  (if error
+    (.printStackTrace error ^PrintWriter *err*)))
 
-(defn set-error-handlers! [client options]
+(defn set-error-handlers! [^YellerHTTPClient client options]
   (if (or (:auth-error-handler options)
           (:io-error-handler options))
     (let [auth (:auth-error-handler options default-auth-error-handler)
@@ -41,7 +44,7 @@
   "turns a seq of endpoints into
   an array of endpoints"
   [endpoints]
-  (let [a (make-array String (count endpoints))]
+  (let [^"[Ljava.lang.String;" a (make-array String (count endpoints))]
     (loop  [i 0]
       (if (<= (count endpoints) i)
         a
@@ -58,7 +61,7 @@
   "turns a seq of application packages into
   an array of application packages"
   [app-packages]
-  (let [a (make-array String (count app-packages))]
+  (let [^"[Ljava.lang.String;" a (make-array String (count app-packages))]
     (loop  [i 0]
       (if (<= (count app-packages) i)
         a
@@ -66,7 +69,7 @@
           (aset a i (named->string (nth app-packages i)))
           (recur (inc i)))))))
 
-(defn set-urls! [client options]
+(defn set-urls! [^YellerHTTPClient client options]
   (when-let [endpoints (:endpoints options)]
     (assert (every? string? endpoints) (str "was given endpoints that weren't strings under :endpoints, got: " (pr-str endpoints)))
     (.setUrls client (make-endpoint-array (:endpoints options)))))
@@ -103,15 +106,15 @@
   (proxy [JsonSerializer] []
     (serialize [named generator provider]
       (if (namespace named)
-        (.writeString generator (str (namespace named) "/" (name named)))
-        (.writeString generator (name named))))))
+        (.writeString ^JsonGenerator generator (str (namespace named) "/" (name named)))
+        (.writeString ^JsonGenerator generator (name named))))))
 
 (def var-serializer
   (proxy [JsonSerializer] []
     (serialize [v generator provider]
       (if-let [n (:ns (meta v))]
-        (.writeString generator (str n "/" (:name (meta v))))
-        (.writeString generator (:name (meta v)))))))
+        (.writeString ^JsonGenerator generator ^String (str n "/" (:name (meta v))))
+        (.writeString ^JsonGenerator generator ^String (:name (meta v)))))))
 
 (defn ^ObjectMapper object-mapper
   "a Jackson ObjectMapper that serializes symbols, keywords and vars 'correctly'"
@@ -199,7 +202,7 @@
    {:params ...}
    "
   ([client exception] (report client exception {}))
-  ([client exception extra]
+  ([^YellerHTTPClient client ^Throwable exception extra]
    (if (or (:environment extra)
            (:location extra)
            (:url extra))
@@ -210,6 +213,6 @@
                 (stringify-keys (add-ex-data exception (:custom-data extra {})))))
      (.report client
               exception
-              (stringify-keys (add-ex-data
+              ^java.util.Map (stringify-keys (add-ex-data
                                 exception
                                 (:custom-data extra {})))))))
