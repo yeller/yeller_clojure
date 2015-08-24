@@ -14,7 +14,7 @@
              module.SimpleModule)
            (com.fasterxml.jackson.core Version)))
 
-(def client-version "yeller-clojure-client: 1.2.1")
+(def client-version "yeller-clojure-client: 1.3.1")
 
 (defn default-io-error-handler [backend error]
   (.println *err* (str "Yeller: an io error ocurred whilst talking to yeller: "))
