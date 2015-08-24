@@ -214,5 +214,5 @@
      (.report client
               exception
               ^java.util.Map (stringify-keys (add-ex-data
-                                exception
-                                (:custom-data extra {})))))))
+                                               exception
+                                               (:custom-data extra {})))))))
