@@ -102,6 +102,11 @@
     (.setApplicationPackages client (make-app-package-array (:application-packages options)))
     (.setApplicationPackages client (make-app-package-array (default-application-packages)))))
 
+(defn set-environment [^YellerHTTPClient client options]
+  (if (:environment options)
+    (.withEnvironment client (:environment options))
+    client))
+
 (def named-serializer
   (proxy [JsonSerializer] []
     (serialize [named generator provider]
@@ -158,6 +163,7 @@
     (set-urls! client options)
     (set-debug! client options)
     (set-application-packages! client options)
+    (set-environment client options)
     client))
 
 (defn ^YellerExtraDetail add-url [^YellerExtraDetail detail extra]
@@ -207,12 +213,14 @@
            (:location extra)
            (:url extra))
      (let [detail (format-extra-detail extra)]
+       (println detail)
        (.report client
                 exception
                 detail
                 (stringify-keys (add-ex-data exception (:custom-data extra {})))))
-     (.report client
-              exception
-              ^java.util.Map (stringify-keys (add-ex-data
-                                               exception
-                                               (:custom-data extra {})))))))
+     (do
+       (.report client
+                exception
+                ^java.util.Map (stringify-keys (add-ex-data
+                                                 exception
+                                                 (:custom-data extra {}))))))))
