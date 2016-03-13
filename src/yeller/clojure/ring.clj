@@ -5,8 +5,8 @@
 
 (defn request-info [request]
   {:request-method (s/upper-case (name (:request-method request)))
-   :user-agent (-> request :headers (get "User-Agent"))
-   :referrer (-> request :headers (get "Referer"))})
+   :user-agent (-> request :headers (get "user-agent"))
+   :referrer (-> request :headers (get "referer"))})
 
 (defn format-extra [options request]
   {:url (req/request-url request)

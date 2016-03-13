@@ -10,6 +10,6 @@
       (session/wrap-session
         (yeller-ring/wrap-ring
           (fn [& args] (assert false "error"))
-          {:token "YOUR API TOKEN HERE"
+          {:token "yk_w_60f4e12d6ead7b75b4b8206f1f8619adbcd69ffe4a12b9b06cb0f569b2f08b0c"
            :application-packages ["yeller.ring_example_app"]})))
     {:port 4001}))
